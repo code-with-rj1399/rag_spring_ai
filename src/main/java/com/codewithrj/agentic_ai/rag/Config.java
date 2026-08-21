@@ -42,7 +42,7 @@ public class Config {
         // Reading text file
         PagePdfDocumentReader pagePdfDocumentReader = new PagePdfDocumentReader(budgetPdfSource);
         List<Document> pdfDocuments = pagePdfDocumentReader.get();
-        pdfDocuments.addAll(pdfDocuments);
+        allDocuments.addAll(pdfDocuments);
 
 
 
