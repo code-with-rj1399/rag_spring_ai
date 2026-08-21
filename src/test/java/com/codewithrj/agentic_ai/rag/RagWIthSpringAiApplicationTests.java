@@ -1,4 +1,4 @@
-package com.codewithrj.RAG.WIth.Spring.AI;
+package com.codewithrj.agentic_ai.rag;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

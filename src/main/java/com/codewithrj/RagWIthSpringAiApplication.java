@@ -1,4 +1,4 @@
-package com.codewithrj.RAG.WIth.Spring.AI;
+package com.codewithrj;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

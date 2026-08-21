@@ -1,125 +1,23 @@
-# RAG With Spring AI
+# Agentic AI With Spring AI
 
-A simple hands-on **Retrieval-Augmented Generation (RAG)** project using **Spring AI and Ollama**.
+A hands-on repository for learning **Agentic AI using Java, Spring Boot, and Spring AI**.
 
-The project uses `Budget_Speech.txt` as the knowledge source and demonstrates document chunking, embeddings, vector storage, retrieval, and LLM-based question answering.
+The goal is to learn AI application development by building small, practical projects and understanding the concepts behind them.
 
-## Architecture
+## RAG — Retrieval-Augmented Generation
 
-```text
-Budget_Speech.txt
-       ↓
-   TextReader
-       ↓
-TokenTextSplitter
-       ↓
-nomic-embed-text
-       ↓
-SimpleVectorStore
-       ↓
-QuestionAnswerAdvisor
-       ↓
-   ChatClient
-       ↓
-  Qwen3 1.7B
-       ↓
-    Answer
-```
+The first project in this repository focuses on building a **RAG application using Spring AI and Ollama**.
 
-## Models
+The RAG implementation demonstrates:
 
-The project uses Ollama to run both models locally.
+* Document ingestion
+* Document chunking
+* Embeddings
+* Vector storage
+* Similarity search
+* Context retrieval
+* LLM-based question answering
 
-| Purpose    | Model              |
-| ---------- | ------------------ |
-| Chat / LLM | `qwen3:1.7b`       |
-| Embeddings | `nomic-embed-text` |
+### Project
 
-**Qwen3 1.7B** is responsible for generating the final answer.
-
-**nomic-embed-text** converts the document chunks and user queries into vector embeddings, which are used for semantic similarity search.
-
-## Dependencies
-
-The important Spring AI dependencies in `pom.xml` are:
-
-```xml
-<dependency>
-    <groupId>org.springframework.ai</groupId>
-    <artifactId>spring-ai-starter-model-ollama</artifactId>
-</dependency>
-
-<dependency>
-    <groupId>org.springframework.ai</groupId>
-    <artifactId>spring-ai-vector-store</artifactId>
-</dependency>
-
-<dependency>
-    <groupId>org.springframework.ai</groupId>
-    <artifactId>spring-ai-vector-store-advisor</artifactId>
-</dependency>
-```
-
-The project uses:
-
-```xml
-<properties>
-    <java.version>21</java.version>
-    <spring-ai.version>2.0.0</spring-ai.version>
-</properties>
-```
-
-The Spring AI BOM should be imported in `dependencyManagement` so that the Spring AI dependencies use the same version.
-
-## Configuration
-
-```properties
-spring.application.name=RAG-With-Spring-AI
-
-spring.ai.ollama.base-url=http://localhost:11434
-
-# Chat / LLM
-spring.ai.ollama.chat.options.model=qwen3:1.7b
-
-# Embedding model
-spring.ai.ollama.embedding.options.model=nomic-embed-text
-```
-
-## Setup
-
-Install Ollama, then pull both models:
-
-```bash
-ollama pull qwen3:1.7b
-ollama pull nomic-embed-text
-```
-
-Verify:
-
-```bash
-ollama list
-```
-
-Start Ollama if it isn't already running:
-
-```bash
-ollama serve
-```
-
-Then start the Spring Boot application:
-
-```bash
-./mvnw spring-boot:run
-```
-
-## API
-
-Once the application is running:
-
-```bash
-curl "http://localhost:8080/budget?message=What does the budget say about infrastructure?"
-```
-
-The application retrieves relevant chunks from `Budget_Speech.txt` using `nomic-embed-text` and `SimpleVectorStore`, then passes the retrieved context to `Qwen3 1.7B` through Spring AI's `QuestionAnswerAdvisor`.
-
-Everything runs **locally through Ollama**, so no OpenAI or Groq API key is required.
+**[RAG With Spring AI](./src/main/java/com/codewithrj/agentic_ai/rag/RAG.md)**
