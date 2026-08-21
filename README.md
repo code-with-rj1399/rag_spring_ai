@@ -2,7 +2,7 @@
 
 A simple hands-on **Retrieval-Augmented Generation (RAG)** project using **Spring AI and Ollama**.
 
-The project uses a budget speech as the knowledge source and demonstrates how to retrieve relevant information from the document before generating an answer with a local LLM.
+The project uses `Budget_Speech.txt` as the knowledge source and demonstrates document chunking, embeddings, vector storage, retrieval, and LLM-based question answering.
 
 ## Architecture
 
@@ -13,7 +13,7 @@ Budget_Speech.txt
        ↓
 TokenTextSplitter
        ↓
-   Embeddings
+nomic-embed-text
        ↓
 SimpleVectorStore
        ↓
@@ -26,25 +26,50 @@ QuestionAnswerAdvisor
     Answer
 ```
 
-## Key Components
+## Models
 
-* **Spring Boot** — application framework
-* **Spring AI** — AI/RAG integration
-* **SimpleVectorStore** — stores document embeddings
-* **QuestionAnswerAdvisor** — retrieves relevant documents and adds them to the prompt
-* **Ollama** — runs the models locally
-* **Qwen3 1.7B** — chat/LLM model
-* **nomic-embed-text** — embedding model
+The project uses Ollama to run both models locally.
 
-## API
+| Purpose    | Model              |
+| ---------- | ------------------ |
+| Chat / LLM | `qwen3:1.7b`       |
+| Embeddings | `nomic-embed-text` |
 
-Start the application and query the budget document:
+**Qwen3 1.7B** is responsible for generating the final answer.
 
-```bash
-curl "http://localhost:8080/budget?message=What does the budget say about infrastructure?"
+**nomic-embed-text** converts the document chunks and user queries into vector embeddings, which are used for semantic similarity search.
+
+## Dependencies
+
+The important Spring AI dependencies in `pom.xml` are:
+
+```xml
+<dependency>
+    <groupId>org.springframework.ai</groupId>
+    <artifactId>spring-ai-starter-model-ollama</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.ai</groupId>
+    <artifactId>spring-ai-vector-store</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.ai</groupId>
+    <artifactId>spring-ai-vector-store-advisor</artifactId>
+</dependency>
 ```
 
-The query is embedded, relevant chunks are retrieved from `SimpleVectorStore`, and the retrieved context is passed to Qwen3 to generate the answer.
+The project uses:
+
+```xml
+<properties>
+    <java.version>21</java.version>
+    <spring-ai.version>2.0.0</spring-ai.version>
+</properties>
+```
+
+The Spring AI BOM should be imported in `dependencyManagement` so that the Spring AI dependencies use the same version.
 
 ## Configuration
 
@@ -56,13 +81,13 @@ spring.ai.ollama.base-url=http://localhost:11434
 # Chat / LLM
 spring.ai.ollama.chat.options.model=qwen3:1.7b
 
-# Embeddings
+# Embedding model
 spring.ai.ollama.embedding.options.model=nomic-embed-text
 ```
 
-## Running Ollama
+## Setup
 
-Install Ollama and pull the required models:
+Install Ollama, then pull both models:
 
 ```bash
 ollama pull qwen3:1.7b
@@ -86,3 +111,15 @@ Then start the Spring Boot application:
 ```bash
 ./mvnw spring-boot:run
 ```
+
+## API
+
+Once the application is running:
+
+```bash
+curl "http://localhost:8080/budget?message=What does the budget say about infrastructure?"
+```
+
+The application retrieves relevant chunks from `Budget_Speech.txt` using `nomic-embed-text` and `SimpleVectorStore`, then passes the retrieved context to `Qwen3 1.7B` through Spring AI's `QuestionAnswerAdvisor`.
+
+Everything runs **locally through Ollama**, so no OpenAI or Groq API key is required.
