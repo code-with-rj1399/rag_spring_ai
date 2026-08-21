@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -28,28 +29,34 @@ public class Config {
     @Value("classpath:/budget/Union Budget 2023-24 Analysis.pdf")
     private Resource budgetPdfSource;
 
-    @Bean
-    SimpleVectorStore simpleVectorStore(EmbeddingModel embeddingModel){
-        SimpleVectorStore vectorStore = SimpleVectorStore.builder(embeddingModel)
-                .build();
+//    @Bean
+//    SimpleVectorStore simpleVectorStore(EmbeddingModel embeddingModel){
+//        SimpleVectorStore vectorStore = SimpleVectorStore.builder(embeddingModel)
+//                .build();
+//
+//        List<Document> allDocuments = new ArrayList<>();
+//
+//
+//        // Reading text file
+//        TextReader textReader = new TextReader(budgetTextSource);
+//        textReader.getCustomMetadata()
+//                .put("fileName", "budget/Budget_Speech_2024-2025.txt");
+//        List<Document> textDocuments = textReader.get();
+//        allDocuments.addAll(textDocuments);
+//
+//        // Reading text file
+//        PagePdfDocumentReader pagePdfDocumentReader = new PagePdfDocumentReader(budgetPdfSource);
+//        List<Document> pdfDocuments = pagePdfDocumentReader.get();
+//        allDocuments.addAll(pdfDocuments);
+//
+//
+//
+//        TextSplitter textSplitter = new TokenTextSplitter();
+//        List<Document> splitDocuments = textSplitter.apply(allDocuments);
+//        vectorStore.add(splitDocuments);
+//
+//        return vectorStore;
+//    }
 
-        // Reading text file
-        TextReader textReader = new TextReader(budgetTextSource);
-        textReader.getCustomMetadata()
-                .put("fileName", "budget/Budget_Speech_2024-2025.txt");
-        List<Document> allDocuments = textReader.get();
 
-        // Reading text file
-        PagePdfDocumentReader pagePdfDocumentReader = new PagePdfDocumentReader(budgetPdfSource);
-        List<Document> pdfDocuments = pagePdfDocumentReader.get();
-        allDocuments.addAll(pdfDocuments);
-
-
-
-        TextSplitter textSplitter = new TokenTextSplitter();
-        List<Document> splitDocuments = textSplitter.apply(pdfDocuments);
-        vectorStore.add(splitDocuments);
-
-        return vectorStore;
-    }
 }

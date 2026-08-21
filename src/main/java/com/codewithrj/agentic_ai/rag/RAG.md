@@ -106,6 +106,30 @@ Start Ollama if it isn't already running:
 ollama serve
 ```
 
+
+### Elasticsearch
+
+Run Elasticsearch locally using Docker:
+
+```bash
+docker pull docker.elastic.co/elasticsearch/elasticsearch:9.1.0
+
+docker run --name elasticsearch \
+  -p 9200:9200 \
+  -e discovery.type=single-node \
+  -e xpack.security.enabled=false \
+  docker.elastic.co/elasticsearch/elasticsearch:9.1.0
+```
+
+Verify:
+
+```bash
+curl http://localhost:9200
+```
+
+Elasticsearch will be available at `http://localhost:9200`.
+
+
 Then start the Spring Boot application:
 
 ```bash

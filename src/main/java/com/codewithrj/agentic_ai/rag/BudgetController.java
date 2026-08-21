@@ -23,7 +23,6 @@ public class BudgetController {
                 .defaultAdvisors(QuestionAnswerAdvisor.builder(vectorStore).build())
                 .build();
         this.vectorStore = vectorStore;
-
     }
 
 
