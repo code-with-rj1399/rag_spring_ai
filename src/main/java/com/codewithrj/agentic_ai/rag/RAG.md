@@ -2,7 +2,7 @@
 
 A simple hands-on **Retrieval-Augmented Generation (RAG)** project using **Spring AI and Ollama**.
 
-The project uses `Budget_Speech.txt` as the knowledge source and demonstrates document chunking, embeddings, vector storage, retrieval, and LLM-based question answering.
+The project uses `Budget_Speech_2024-2025.txt` as the knowledge source and demonstrates document chunking, embeddings, vector storage, retrieval, and LLM-based question answering.
 
 ## Architecture
 
@@ -120,6 +120,6 @@ Once the application is running:
 curl "http://localhost:8080/budget?message=What does the budget say about infrastructure?"
 ```
 
-The application retrieves relevant chunks from `Budget_Speech.txt` using `nomic-embed-text` and `SimpleVectorStore`, then passes the retrieved context to `Qwen3 1.7B` through Spring AI's `QuestionAnswerAdvisor`.
+The application retrieves relevant chunks from `Budget_Speech_2024-2025.txt` using `nomic-embed-text` and `SimpleVectorStore`, then passes the retrieved context to `Qwen3 1.7B` through Spring AI's `QuestionAnswerAdvisor`.
 
 Everything runs **locally through Ollama**, so no OpenAI or Groq API key is required.

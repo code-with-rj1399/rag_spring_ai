@@ -1,4 +1,4 @@
-package com.codewithrj;
+package com.codewithrj.agentic_ai;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
