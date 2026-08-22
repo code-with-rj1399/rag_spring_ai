@@ -18,10 +18,12 @@ public class QAAgent {
     }
 
     public String ask(String question){
-        return chatClient
+        ChatClient.CallResponseSpec callResponseSpec = chatClient
                 .prompt()
                 .user(question)
                 .tools(budgetSearchTool, mathematicalTool)
-                .call().content();
+                .call();
+
+        return callResponseSpec.content() +"\n\n\n" + callResponseSpec.chatResponse();
     }
 }
