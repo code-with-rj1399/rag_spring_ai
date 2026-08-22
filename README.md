@@ -22,16 +22,46 @@ The RAG implementation demonstrates:
 
 ### **[RAG - Example](./src/main/java/com/codewithrj/agentic_ai/rag/RAG.md)**
 
-### **[Tools calling - Example ](./src/main/java/com/codewithrj/agentic_ai/tools/TOOLS.md)**
+### **[Tools calling - Example](./src/main/java/com/codewithrj/agentic_ai/tools/TOOLS.md)**
 
 The next project demonstrates Tool Calling with Spring AI.
 
 It shows how an LLM can use custom Java methods as tools, including:
 
-Custom @Tool methods
-Multiple tools
-Tool selection by the LLM
-RAG exposed as a tool
-Project
+* Custom `@Tool` methods
+* Multiple tools
+* Tool selection by the LLM
+* RAG exposed as a tool
 
-Tools With Spring AI
+## Memory
+
+This project demonstrates **short-term conversational memory** using Spring AI `ChatMemory` and `MessageWindowChatMemory`.
+
+A `conversationId` is passed with each request and supplied to `MessageChatMemoryAdvisor`. Spring AI uses that ID to retrieve and maintain the conversation history before sending the request to the LLM.
+
+The current implementation keeps a window of **20 messages per conversation**.
+
+```text
+conversationId + question
+          |
+          v
+       QAAgent
+          |
+          v
+ MessageChatMemoryAdvisor
+          |
+          v
+      ChatMemory
+          |
+          v
+  Previous conversation
+          |
+          v
+          LLM
+```
+
+The memory implementation and request flow are documented in **[Memory](./src/main/java/com/codewithrj/agentic_ai/memory/README.md)**.
+
+Long-term memory is a separate concept: it uses a **User ID** and persistent storage such as a vector store to retrieve relevant user information across independent conversations.
+
+## Tools With Spring AI
