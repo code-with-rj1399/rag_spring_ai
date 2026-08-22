@@ -1,111 +1,173 @@
 # Memory
 
-This module demonstrates **short-term and long-term memory** for an AI agent using Spring AI.
+This module demonstrates how the agent maintains conversational context using **Spring AI ChatMemory**.
 
-## What is Memory?
+## Current Implementation
 
-Memory allows an AI agent to retain relevant information from previous interactions and use it when processing future queries.
+The current implementation provides **short-term conversational memory** using Spring AI's `ChatMemory` abstraction and `MessageWindowChatMemory`.
 
-- **Short-Term Memory** — maintains context within a conversation.
-- **Long-Term Memory** — persists important user information across conversations.
+The memory configuration is defined in [`MemoryConfig.java`](./MemoryConfig.java):
+
+```java
+@Bean
+public ChatMemory chatMemory() {
+    return MessageWindowChatMemory.builder()
+            .maxMessages(20)
+            .build();
+}
+```
+
+The application keeps a maximum window of **20 messages** for each conversation.
+
+## How Conversation ID Is Used
+
+The conversation ID is the key that connects multiple requests to the same conversation.
+
+The flow in [`QAAgent.java`](../agent/QAAgent.java) is:
+
+```text
+Client
+  |
+  | conversationId + question
+  v
+QAAgent.ask()
+  |
+  v
+ChatClient
+  |
+  v
+MessageChatMemoryAdvisor
+  |
+  | ChatMemory.CONVERSATION_ID
+  v
+ChatMemory
+  |
+  | retrieve previous messages
+  v
+LLM
+```
+
+The `ask()` method receives both values:
+
+```java
+public String ask(String conversationId, String question)
+```
+
+The question is sent to the `ChatClient` using `.user(question)`. The same conversation ID is passed to the memory advisor:
+
+```java
+.advisors(
+    advisor -> advisor.param(
+        ChatMemory.CONVERSATION_ID,
+        conversationId
+    )
+)
+```
+
+This tells Spring AI which conversation's history should be retrieved and updated.
+
+## What Happens Across Requests
+
+### First request
+
+```text
+conversationId = abc123
+question = "What is Kafka?"
+```
+
+The memory advisor associates the request with `abc123` and stores the conversation messages.
+
+### Second request
+
+```text
+conversationId = abc123
+question = "How does it handle partitions?"
+```
+
+Because the same conversation ID is supplied, the memory advisor retrieves the previous messages for `abc123` and makes them available to the LLM.
+
+The LLM can therefore understand that **"it" refers to Kafka**.
+
+### New conversation
+
+```text
+conversationId = xyz789
+question = "How does it handle partitions?"
+```
+
+This is a different conversation. The memory associated with `abc123` is not used for `xyz789`.
+
+## Where Memory Is Added to the LLM Request
+
+Memory is not manually concatenated with the user prompt in `QAAgent`.
+
+Instead, `MessageChatMemoryAdvisor` is registered as a default `ChatClient` advisor:
+
+```java
+this.chatClient = ChatClient.builder(chatModel)
+        .defaultAdvisors(
+                MessageChatMemoryAdvisor.builder(chatMemory)
+                        .build()
+        )
+        .build();
+```
+
+The advisor participates in the `ChatClient` request lifecycle. It uses the supplied conversation ID to retrieve relevant messages from `ChatMemory` and incorporates them into the request sent to the model. After the model interaction, the conversation messages are maintained by the memory implementation.
+
+This keeps memory handling separate from the agent's business logic.
 
 ## Short-Term Memory
 
-Short-term memory maintains the context of an ongoing conversation using a unique **Conversation ID**.
+Short-term memory is conversation-scoped.
 
 ```text
-User
-  ↓
 Conversation ID
-  ↓
-Conversation History
-  ↓
-LLM Context
+      |
+      v
+ChatMemory
+      |
+      v
+Recent conversation messages
+      |
+      v
+LLM context
 ```
 
-When a subsequent query uses the same `conversationId`, the application retrieves the previous conversation history and provides it to the LLM.
+The current implementation uses `MessageWindowChatMemory`, so only the configured message window is retained for the conversation.
 
 ## Long-Term Memory
 
-Long-term memory stores important information that should remain available after a conversation ends.
+Long-term memory is different from the current `ChatMemory` implementation.
 
-Unlike short-term memory, long-term memory is associated with a **User ID** rather than a Conversation ID.
+It should persist important information about a **user** across independent conversations.
+
+The intended flow is:
 
 ```text
 User ID
-   ↓
+  |
+  v
 Long-Term Memory
-   ↓
+  |
+  v
 Vector Store
+  |
+  v
+Relevant memories for the current query
+  |
+  v
+LLM context
 ```
 
 For example:
 
 ```text
-User: I prefer Java over Python for backend development.
+"I prefer Java for backend development."
 ```
 
-The application can persist:
+can be stored as a user memory. In a future conversation, semantic search can retrieve that memory and add it to the LLM context.
 
-```text
-User prefers Java over Python for backend development.
-```
-
-along with metadata such as:
-
-```text
-userId = user-123
-memoryType = preference
-```
-
-## How Long-Term Memory Works
-
-The implementation follows a **store → retrieve → context enrichment** pattern.
-
-```text
-                 User Query
-                     |
-                     v
-             Retrieve Memories
-                     |
-                     v
-                Vector Store
-                     |
-                     v
-          Relevant User Memories
-                     |
-                     v
-              Context Enrichment
-                     |
-                     v
-                    LLM
-                     |
-                     v
-                 Response
-```
-
-### 1. Store Memory
-
-Important user information is stored as a document in the existing Spring AI `VectorStore`. The memory is embedded and persisted in the vector database with user-related metadata.
-
-### 2. Retrieve Memory
-
-When a new query arrives, the query is used for semantic search against the vector store. Only memories relevant to the current query are retrieved, scoped by `userId`.
-
-### 3. Add Memory to Context
-
-Retrieved memories are added to the LLM context before the current query is processed.
-
-```text
-Relevant information about the user:
-- User prefers Java.
-- User is interested in backend development.
-
-User Query:
-Suggest a backend project.
-```
-
-This enables the agent to generate personalized responses.
+**Long-term memory is not implemented by `MessageWindowChatMemory`.** It is a separate capability that can be built on top of the existing vector-store infrastructure.
 
 ## Short-Term vs Long-Term Memory
 
@@ -113,64 +175,41 @@ This enables the agent to generate personalized responses.
 |---|---|---|
 | Scope | Conversation | User |
 | Identifier | Conversation ID | User ID |
-| Lifetime | Current/recent conversation | Persistent |
-| Storage | Conversation history | Vector Store |
+| Current implementation | Yes | Planned/next step |
+| Storage | `ChatMemory` | Vector Store |
 | Retrieval | Conversation history | Semantic search |
-| Purpose | Maintain conversation context | Remember important user information |
+| Purpose | Maintain ongoing context | Remember useful information across conversations |
 
 ## Architecture
 
 ```text
-                         AI Agent
+                         QAAgent
                             |
-                 ┌──────────┴──────────┐
-                 |                     |
-          Short-Term Memory     Long-Term Memory
-                 |                     |
-        Conversation ID             User ID
-                 |                     |
-        Conversation History       Vector Store
-                 |                     |
-                 └──────────┬──────────┘
+                       ChatClient
+                            |
+                MessageChatMemoryAdvisor
+                            |
+                            v
+                       ChatMemory
+                            |
+                 Conversation ID lookup
+                            |
+                            v
+                 Recent conversation history
                             |
                             v
                            LLM
 ```
 
+The important separation is:
+
+```text
+Conversation ID → Short-term conversational context
+User ID         → Long-term persistent memory
+```
+
 ## Key Design Principle
 
-Do not store every user message as long-term memory. Only information that is useful across future conversations should be persisted.
+Do not treat the entire conversation history as long-term memory.
 
-Examples:
-
-```text
-"I prefer Java."                         → Remember
-"I'm preparing for Staff Engineer."     → Remember
-"What is Kafka?"                        → Don't remember
-"Explain Redis."                        → Don't remember
-```
-
-## Technologies
-
-- Java
-- Spring Boot
-- Spring AI
-- LLM
-- Vector Store
-- Embeddings
-
-## Summary
-
-**Short-Term Memory**
-
-```text
-Conversation ID → Conversation History → LLM Context
-```
-
-**Long-Term Memory**
-
-```text
-User ID → Vector Store → Relevant Memories → LLM Context
-```
-
-Together, they allow the AI agent to maintain conversational context while remembering important user information across independent conversations.
+Short-term memory keeps the current conversation coherent. Long-term memory should contain only information that is useful across future conversations, such as stable preferences, goals, or user-specific facts.
