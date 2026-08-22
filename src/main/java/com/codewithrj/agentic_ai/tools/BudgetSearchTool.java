@@ -19,7 +19,7 @@ public class BudgetSearchTool {
     }
 
 
-    @Tool(description = "Search the 2024-25 Indian budget document for relevant information")
+    @Tool(description = "Search the Indian budget documents for relevant information")
     public String searchBudget(String query){
         List<Document> documentList = vectorStore.similaritySearch(query);
         return documentList.stream()

@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Agentic AI · Spring AI</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family:
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    Roboto,
+                    Helvetica,
+                    Arial,
+                    sans-serif;
+
+            background: #f7f7f8;
+            color: #1f1f1f;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+
+        .sidebar {
+            width: 250px;
+            background: #171717;
+            color: #fff;
+            padding: 22px 16px;
+
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            font-size: 16px;
+            font-weight: 600;
+
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 32px;
+            height: 32px;
+
+            border-radius: 9px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: linear-gradient(
+                    135deg,
+                    #7c3aed,
+                    #4f46e5
+            );
+
+            font-size: 15px;
+        }
+
+        .new-chat {
+            border: 1px solid #3a3a3a;
+            background: #222;
+            color: #fff;
+
+            border-radius: 8px;
+
+            padding: 10px 12px;
+
+            cursor: pointer;
+
+            font-size: 14px;
+
+            text-align: left;
+        }
+
+        .new-chat:hover {
+            background: #2c2c2c;
+        }
+
+        .sidebar-section {
+            margin-top: 30px;
+
+            color: #8e8e8e;
+
+            font-size: 11px;
+            font-weight: 600;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.08em;
+        }
+
+        .sidebar-item {
+            margin-top: 12px;
+
+            color: #bdbdbd;
+
+            font-size: 14px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+
+            color: #777;
+
+            font-size: 12px;
+
+            line-height: 1.5;
+        }
+
+        /* Main */
+
+        .main {
+            flex: 1;
+
+            display: flex;
+            flex-direction: column;
+
+            min-width: 0;
+        }
+
+        .header {
+            height: 64px;
+
+            display: flex;
+            align-items: center;
+
+            padding: 0 28px;
+
+            border-bottom: 1px solid #e5e5e5;
+
+            background: rgba(255, 255, 255, 0.85);
+
+            backdrop-filter: blur(10px);
+        }
+
+        .header-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .status {
+            margin-left: 12px;
+
+            display: flex;
+            align-items: center;
+
+            gap: 6px;
+
+            font-size: 12px;
+            color: #777;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #22c55e;
+        }
+
+        /* Chat */
+
+        .chat {
+            flex: 1;
+
+            overflow-y: auto;
+
+            padding: 40px 20px 140px;
+        }
+
+        .chat-container {
+            width: min(820px, 100%);
+            margin: 0 auto;
+        }
+
+        .welcome {
+            text-align: center;
+
+            padding-top: 12vh;
+
+            margin-bottom: 50px;
+        }
+
+        .welcome-icon {
+            width: 54px;
+            height: 54px;
+
+            margin: 0 auto 18px;
+
+            border-radius: 16px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: white;
+
+            font-size: 22px;
+            font-weight: 600;
+
+            background: linear-gradient(
+                    135deg,
+                    #7c3aed,
+                    #4f46e5
+            );
+
+            box-shadow:
+                    0 10px 30px rgba(79, 70, 229, 0.2);
+        }
+
+        .welcome h1 {
+            margin: 0;
+
+            font-size: 30px;
+
+            letter-spacing: -0.03em;
+        }
+
+        .welcome p {
+            margin-top: 10px;
+
+            color: #777;
+
+            font-size: 15px;
+        }
+
+        /* Messages */
+
+        .message {
+            display: flex;
+
+            gap: 14px;
+
+            margin-bottom: 28px;
+        }
+
+        .avatar {
+            flex-shrink: 0;
+
+            width: 34px;
+            height: 34px;
+
+            border-radius: 10px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .user-avatar {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .ai-avatar {
+            background: linear-gradient(
+                    135deg,
+                    #7c3aed,
+                    #4f46e5
+            );
+
+            color: white;
+        }
+
+        .message-content {
+            flex: 1;
+
+            min-width: 0;
+
+            line-height: 1.65;
+
+            font-size: 15px;
+
+            white-space: pre-wrap;
+
+            word-break: break-word;
+        }
+
+        .message-name {
+            font-size: 13px;
+
+            font-weight: 600;
+
+            margin-bottom: 4px;
+        }
+
+        /* Input */
+
+        .composer-wrapper {
+            position: fixed;
+
+            bottom: 0;
+            left: 250px;
+            right: 0;
+
+            padding: 20px 20px 24px;
+
+            background:
+                    linear-gradient(
+                            to top,
+                            #f7f7f8 65%,
+                            rgba(247,247,248,0)
+                    );
+        }
+
+        .composer {
+            width: min(820px, 100%);
+
+            margin: 0 auto;
+
+            background: white;
+
+            border: 1px solid #d9d9d9;
+
+            border-radius: 16px;
+
+            display: flex;
+
+            align-items: flex-end;
+
+            padding: 10px 10px 10px 16px;
+
+            box-shadow:
+                    0 4px 20px rgba(0,0,0,0.06);
+        }
+
+        textarea {
+            flex: 1;
+
+            border: none;
+
+            outline: none;
+
+            resize: none;
+
+            font-family: inherit;
+
+            font-size: 15px;
+
+            line-height: 1.5;
+
+            min-height: 24px;
+
+            max-height: 140px;
+
+            padding: 7px 8px;
+
+            background: transparent;
+        }
+
+        textarea::placeholder {
+            color: #999;
+        }
+
+        .send-button {
+            width: 38px;
+            height: 38px;
+
+            border: none;
+
+            border-radius: 10px;
+
+            background: #171717;
+
+            color: white;
+
+            cursor: pointer;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 17px;
+        }
+
+        .send-button:hover {
+            background: #333;
+        }
+
+        .send-button:disabled {
+            background: #d4d4d4;
+
+            cursor: not-allowed;
+        }
+
+        .hint {
+            width: min(820px, 100%);
+
+            margin: 8px auto 0;
+
+            text-align: center;
+
+            font-size: 11px;
+
+            color: #999;
+        }
+
+        /* Loading */
+
+        .typing {
+            display: flex;
+
+            gap: 4px;
+
+            align-items: center;
+
+            height: 24px;
+        }
+
+        .typing span {
+            width: 6px;
+            height: 6px;
+
+            border-radius: 50%;
+
+            background: #999;
+
+            animation: bounce 1.2s infinite;
+        }
+
+        .typing span:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+
+        .typing span:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        @keyframes bounce {
+
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+
+        /* Mobile */
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                display: none;
+            }
+
+            .composer-wrapper {
+                left: 0;
+            }
+
+            .header {
+                padding: 0 18px;
+            }
+
+            .chat {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .welcome h1 {
+                font-size: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="logo">AI</div>
+            Agentic AI
+        </div>
+
+        <button class="new-chat" id="newChat">
+            + New conversation
+        </button>
+
+        <div class="sidebar-section">
+            Tools
+        </div>
+
+        <div class="sidebar-item">
+            🧮 Mathematical Tool
+        </div>
+
+        <div class="sidebar-item">
+            📚 Budget RAG
+        </div>
+
+        <div class="sidebar-item">
+            🌐 Wikipedia Search
+        </div>
+
+        <div class="sidebar-footer">
+            Spring AI<br>
+            Ollama · Java 21
+        </div>
+
+    </aside>
+
+    <!-- Main -->
+
+    <main class="main">
+
+        <header class="header">
+
+            <div class="header-title">
+                Spring AI Agent
+            </div>
+
+            <div class="status">
+                <span class="status-dot"></span>
+                Local
+            </div>
+
+        </header>
+
+        <!-- Chat -->
+
+        <section class="chat" id="chat">
+
+            <div class="chat-container" id="messages">
+
+                <div class="welcome" id="welcome">
+
+                    <div class="welcome-icon">
+                        ✦
+                    </div>
+
+                    <h1>
+                        How can I help?
+                    </h1>
+
+                    <p>
+                        Ask a question and let the agent decide which tool to use.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Composer -->
+
+        <div class="composer-wrapper">
+
+            <form class="composer" id="composer">
+
+                <textarea
+                        id="question"
+                        rows="1"
+                        placeholder="Message your AI agent..."
+                        autocomplete="off"
+                ></textarea>
+
+                <button
+                        class="send-button"
+                        id="sendButton"
+                        type="submit"
+                >
+                    ↑
+                </button>
+
+            </form>
+
+            <div class="hint">
+                Agentic AI · Spring AI · Tool Calling
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+    const composer = document.getElementById("composer");
+    const questionInput = document.getElementById("question");
+    const messages = document.getElementById("messages");
+    const chat = document.getElementById("chat");
+    const sendButton = document.getElementById("sendButton");
+    const welcome = document.getElementById("welcome");
+    const newChat = document.getElementById("newChat");
+
+
+    function addMessage(type, text) {
+
+        const message = document.createElement("div");
+
+        message.className = "message";
+
+        const avatar = document.createElement("div");
+
+        avatar.className =
+            "avatar " +
+            (type === "user"
+                ? "user-avatar"
+                : "ai-avatar");
+
+        avatar.textContent =
+            type === "user"
+                ? "U"
+                : "AI";
+
+
+        const content = document.createElement("div");
+
+        content.className = "message-content";
+
+
+        const name = document.createElement("div");
+
+        name.className = "message-name";
+
+        name.textContent =
+            type === "user"
+                ? "You"
+                : "Agent";
+
+
+        const textElement = document.createElement("div");
+
+        textElement.textContent = text;
+
+
+        content.appendChild(name);
+
+        content.appendChild(textElement);
+
+        message.appendChild(avatar);
+
+        message.appendChild(content);
+
+        messages.appendChild(message);
+
+
+        chat.scrollTop = chat.scrollHeight;
+
+        return message;
+    }
+
+
+    function addTyping() {
+
+        const message = document.createElement("div");
+
+        message.className = "message";
+
+        message.id = "typing";
+
+
+        message.innerHTML = `
+            <div class="avatar ai-avatar">AI</div>
+
+            <div class="message-content">
+
+                <div class="message-name">
+                    Agent
+                </div>
+
+                <div class="typing">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+
+            </div>
+        `;
+
+        messages.appendChild(message);
+
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+
+    async function askAgent(question) {
+
+        sendButton.disabled = true;
+
+        questionInput.disabled = true;
+
+        addMessage("user", question);
+
+        if (welcome) {
+            welcome.remove();
+        }
+
+        addTyping();
+
+
+        try {
+
+            const url =
+                "/qa-agent?query=" +
+                encodeURIComponent(question);
+
+
+            const response = await fetch(url);
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Server returned HTTP " +
+                    response.status
+                );
+            }
+
+
+            const result =
+                await response.text();
+
+
+            const typing =
+                document.getElementById("typing");
+
+            if (typing) {
+                typing.remove();
+            }
+
+
+            addMessage(
+                "ai",
+                result || "No response received."
+            );
+
+        } catch (error) {
+
+            const typing =
+                document.getElementById("typing");
+
+            if (typing) {
+                typing.remove();
+            }
+
+
+            addMessage(
+                "ai",
+                "Sorry, I couldn't reach the agent.\n\n" +
+                error.message
+            );
+
+        } finally {
+
+            sendButton.disabled = false;
+
+            questionInput.disabled = false;
+
+            questionInput.focus();
+        }
+    }
+
+
+    composer.addEventListener("submit", function(event) {
+
+        event.preventDefault();
+
+        const question =
+            questionInput.value.trim();
+
+
+        if (!question) {
+            return;
+        }
+
+
+        questionInput.value = "";
+
+        questionInput.style.height = "auto";
+
+        askAgent(question);
+    });
+
+
+    questionInput.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
+
+                event.preventDefault();
+
+                composer.requestSubmit();
+            }
+        }
+    );
+
+
+    questionInput.addEventListener(
+        "input",
+        function() {
+
+            this.style.height = "auto";
+
+            this.style.height =
+                Math.min(
+                    this.scrollHeight,
+                    140
+                ) + "px";
+        }
+    );
+
+
+    newChat.addEventListener(
+        "click",
+        function() {
+
+            messages.innerHTML = `
+                <div class="welcome" id="welcome">
+
+                    <div class="welcome-icon">
+                        ✦
+                    </div>
+
+                    <h1>
+                        How can I help?
+                    </h1>
+
+                    <p>
+                        Ask a question and let the agent decide which tool to use.
+                    </p>
+
+                </div>
+            `;
+
+            questionInput.value = "";
+
+            questionInput.focus();
+        }
+    );
+
+</script>
+
+</body>
+</html>
