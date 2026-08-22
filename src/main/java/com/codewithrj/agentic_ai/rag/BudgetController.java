@@ -3,6 +3,7 @@ package com.codewithrj.agentic_ai.rag;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
+import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,7 +21,11 @@ public class BudgetController {
 
     public BudgetController(ChatClient.Builder builder, VectorStore vectorStore){
         this.chatClient = builder
-                .defaultAdvisors(QuestionAnswerAdvisor.builder(vectorStore).build())
+                .defaultAdvisors(QuestionAnswerAdvisor.builder(vectorStore)
+                        .searchRequest(SearchRequest.builder()
+                                .topK(2)
+                                .build())
+                        .build())
                 .build();
         this.vectorStore = vectorStore;
     }

@@ -8,15 +8,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AgentController {
 
-    private BudgetAgent budgetAgent;
+    private QAAgent qaAgent;
 
-    public AgentController(BudgetAgent budgetAgent) {
-        this.budgetAgent = budgetAgent;
+    public AgentController(QAAgent qaAgent) {
+        this.qaAgent = qaAgent;
     }
 
 
-    @GetMapping("/budgent-agent")
-    String budgestQuestion(@RequestParam String question){
-        return budgetAgent.ask(question);
+    @GetMapping("/qa-agent")
+    String budgestQuestion(@RequestParam String query){
+        return qaAgent.ask(query);
     }
 }

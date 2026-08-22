@@ -5,20 +5,23 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Component;
 
 @Component
-public class BudgetAgent {
+public class QAAgent {
     private final ChatClient chatClient;
     private final BudgetSearchTool budgetSearchTool;
+    private final MathematicalTool mathematicalTool;
 
-    public BudgetAgent(ChatClient.Builder chatClientBuilder, BudgetSearchTool budgetSearchTool){
+
+    public QAAgent(ChatClient.Builder chatClientBuilder, BudgetSearchTool budgetSearchTool, MathematicalTool mathematicalTool){
         this.chatClient = chatClientBuilder.build();
         this.budgetSearchTool = budgetSearchTool;
+        this.mathematicalTool = mathematicalTool;
     }
 
     public String ask(String question){
         return chatClient
                 .prompt()
                 .user(question)
-                .tools(budgetSearchTool)
+                .tools(budgetSearchTool, mathematicalTool)
                 .call().content();
     }
 }

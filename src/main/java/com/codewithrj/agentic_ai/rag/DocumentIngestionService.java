@@ -50,9 +50,10 @@ public class DocumentIngestionService implements CommandLineRunner {
         List<Document> pdfDocuments = pagePdfDocumentReader.get();
         allDocuments.addAll(pdfDocuments);
 
-
-
         TextSplitter textSplitter = new TokenTextSplitter();
+        TokenTextSplitter.builder()
+                .withChunkSize(100)
+                .build();
         List<Document> splitDocuments = textSplitter.apply(allDocuments);
         vectorStore.add(splitDocuments);
 
