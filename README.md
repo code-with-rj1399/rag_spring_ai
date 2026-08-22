@@ -90,7 +90,7 @@ RAG allows the agent to retrieve relevant information from an external knowledge
 
 ---
 
-## 2. Tool Calling
+## 2. Tools
 
 Tool calling allows the LLM to decide when it needs to execute an external function.
 
@@ -180,17 +180,6 @@ This part will be developed incrementally as the individual capabilities become 
 
 ---
 
-## Project Roadmap
-
-| Capability | Status |
-|---|---|
-| RAG | ✅ Implemented |
-| Tool Calling | ✅ Implemented |
-| Short-Term Memory | ✅ Implemented |
-| Long-Term Memory | 🚧 In Progress |
-| Agentic Workflows | ⏳ Planned |
-
----
 
 ## Why Build It This Way?
 
