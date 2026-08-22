@@ -1,6 +1,8 @@
 package com.codewithrj.agentic_ai.rag;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.TextReader;
 import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
@@ -18,6 +20,7 @@ import java.util.List;
 @Component
 public class DocumentIngestionService implements CommandLineRunner {
 
+    private static final Logger log = LoggerFactory.getLogger(DocumentIngestionService.class);
     private final VectorStore vectorStore;
 
     @Value("classpath:/budget/Budget_Speech_2024-2025.txt")
@@ -33,6 +36,15 @@ public class DocumentIngestionService implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
+
+        try{
+            ingestDocuments();
+        }catch (Exception e){
+            log.error("Failed to ingetst documents " + e.getLocalizedMessage());
+        }
+    }
+
+    private void ingestDocuments(){
         System.out.println("Starting document ingestion...");
 
         List<Document> allDocuments = new ArrayList<>();
@@ -56,6 +68,5 @@ public class DocumentIngestionService implements CommandLineRunner {
                 .build();
         List<Document> splitDocuments = textSplitter.apply(allDocuments);
         vectorStore.add(splitDocuments);
-
     }
 }

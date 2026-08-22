@@ -27,7 +27,6 @@ public class AgentController {
             uuid = UUID.randomUUID();
         }
         conversationID = uuid.toString();
-        uuid = UUID.randomUUID();
         return qaAgent.ask(conversationID, query);
     }
 }

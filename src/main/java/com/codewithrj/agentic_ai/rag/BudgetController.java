@@ -3,8 +3,10 @@ package com.codewithrj.agentic_ai.rag;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
+import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,8 +21,8 @@ public class BudgetController {
     private ChatClient chatClient;
     private VectorStore vectorStore;
 
-    public BudgetController(ChatClient.Builder builder, VectorStore vectorStore){
-        this.chatClient = builder
+    public BudgetController(@Qualifier("googleGenAiChatModel") ChatModel chatModel, VectorStore vectorStore){
+        this.chatClient = ChatClient.builder(chatModel)
                 .defaultAdvisors(QuestionAnswerAdvisor.builder(vectorStore)
                         .searchRequest(SearchRequest.builder()
                                 .topK(2)

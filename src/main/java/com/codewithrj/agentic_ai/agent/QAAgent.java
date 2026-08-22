@@ -3,11 +3,14 @@ package com.codewithrj.agentic_ai.agent;
 
 import com.codewithrj.agentic_ai.tools.BudgetSearchTool;
 import com.codewithrj.agentic_ai.tools.MathematicalTool;
+import com.codewithrj.agentic_ai.tools.PdfTool;
 import com.codewithrj.agentic_ai.tools.WikipediaTool;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,14 +20,23 @@ public class QAAgent {
     private final BudgetSearchTool budgetSearchTool;
     private final MathematicalTool mathematicalTool;
     private final WikipediaTool wikipediaTool;
+    private final PdfTool pdfTool;
 
 
-    public QAAgent(ChatClient.Builder chatClientBuilder, ChatMemory chatMemory, BudgetSearchTool budgetSearchTool, MathematicalTool mathematicalTool, WikipediaTool wikipediaTool){
-        this.chatClient = chatClientBuilder
+    public QAAgent(@Qualifier("googleGenAiChatModel") ChatModel chatModel,
+                   ChatMemory chatMemory,
+                   BudgetSearchTool budgetSearchTool,
+                   MathematicalTool mathematicalTool,
+                   WikipediaTool wikipediaTool,
+                   PdfTool pdfTool
+                   ){
+        this.pdfTool = pdfTool;
+        this.chatClient = ChatClient.builder(chatModel)
                 .defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(chatMemory)
                                 .build()
-                ).build();
+                )
+                .build();
         this.chatMemory = chatMemory;
         this.budgetSearchTool = budgetSearchTool;
         this.mathematicalTool = mathematicalTool;
@@ -35,7 +47,7 @@ public class QAAgent {
         ChatClient.CallResponseSpec callResponseSpec = chatClient
                 .prompt()
                 .user(question)
-                .tools(budgetSearchTool, mathematicalTool, wikipediaTool)
+                .tools(budgetSearchTool, mathematicalTool, wikipediaTool, pdfTool)
                 .advisors(
                         advisor -> advisor.param(
                                 ChatMemory.CONVERSATION_ID,
