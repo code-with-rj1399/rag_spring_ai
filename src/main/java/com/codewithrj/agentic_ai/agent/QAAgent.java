@@ -1,34 +1,52 @@
-package com.codewithrj.agentic_ai.tools;
+package com.codewithrj.agentic_ai.agent;
 
 
-import com.codewithrj.agentic_ai.tools.models.WikipediaTool;
+import com.codewithrj.agentic_ai.tools.BudgetSearchTool;
+import com.codewithrj.agentic_ai.tools.MathematicalTool;
+import com.codewithrj.agentic_ai.tools.WikipediaTool;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Component;
 
 @Component
 public class QAAgent {
     private final ChatClient chatClient;
+    private final ChatMemory chatMemory;
     private final BudgetSearchTool budgetSearchTool;
     private final MathematicalTool mathematicalTool;
     private final WikipediaTool wikipediaTool;
 
 
-    public QAAgent(ChatClient.Builder chatClientBuilder, BudgetSearchTool budgetSearchTool, MathematicalTool mathematicalTool, WikipediaTool wikipediaTool){
-        this.chatClient = chatClientBuilder.build();
+    public QAAgent(ChatClient.Builder chatClientBuilder, ChatMemory chatMemory, BudgetSearchTool budgetSearchTool, MathematicalTool mathematicalTool, WikipediaTool wikipediaTool){
+        this.chatClient = chatClientBuilder
+                .defaultAdvisors(
+                        MessageChatMemoryAdvisor.builder(chatMemory)
+                                .build()
+                ).build();
+        this.chatMemory = chatMemory;
         this.budgetSearchTool = budgetSearchTool;
         this.mathematicalTool = mathematicalTool;
         this.wikipediaTool = wikipediaTool;
     }
 
-    public String ask(String question){
+    public String ask(String conversationId, String question){
         ChatClient.CallResponseSpec callResponseSpec = chatClient
                 .prompt()
                 .user(question)
                 .tools(budgetSearchTool, mathematicalTool, wikipediaTool)
+                .advisors(
+                        advisor -> advisor.param(
+                                ChatMemory.CONVERSATION_ID,
+                                conversationId
+                        )
+                )
                 .call();
 
-        return callResponseSpec.content() +"\n\n\n" + formatChatResponse(callResponseSpec.chatResponse());
+        return callResponseSpec.content() +"\n\n\n" +
+                "conversationId " + conversationId +"\n\n\n"+
+                formatChatResponse(callResponseSpec.chatResponse());
     }
 
     private String formatChatResponse(ChatResponse chatResponse) {

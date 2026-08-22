@@ -1,5 +1,6 @@
 package com.codewithrj.agentic_ai.tools.models;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -11,6 +12,10 @@ public class WikipediaService {
     public WikipediaService(RestClient.Builder restClientBuilder) {
         this.restClient = restClientBuilder
                 .baseUrl("https://en.wikipedia.org")
+                .defaultHeader(
+                        HttpHeaders.USER_AGENT,
+                        "agentic-ai-spring/1.0 (https://github.com/code-with-rj1399/agentic_ai_spring)"
+                )
                 .build();
     }
 
