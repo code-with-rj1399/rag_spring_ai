@@ -18,6 +18,20 @@ The RAG implementation demonstrates:
 * Context retrieval
 * LLM-based question answering
 
-### Project
+## Agentic AI Examples (All using Spring AI)
 
-**[RAG With Spring AI](./src/main/java/com/codewithrj/agentic_ai/rag/RAG.md)**
+### **[RAG - Example](./src/main/java/com/codewithrj/agentic_ai/rag/RAG.md)**
+
+### **[Tools calling - Example ](./src/main/java/com/codewithrj/agentic_ai/tools/TOOLS.md)**
+
+The next project demonstrates Tool Calling with Spring AI.
+
+It shows how an LLM can use custom Java methods as tools, including:
+
+Custom @Tool methods
+Multiple tools
+Tool selection by the LLM
+RAG exposed as a tool
+Project
+
+Tools With Spring AI
