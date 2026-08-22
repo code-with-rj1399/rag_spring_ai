@@ -33,6 +33,45 @@ The project will progressively cover:
 
 ---
 
+## How to Start
+
+### Prerequisites
+
+- Java 21+
+- Maven
+- Docker
+- LLM API key
+
+### Start Elasticsearch
+
+The project uses **Elasticsearch as the vector store**.
+
+```bash
+docker compose up -d
+```
+
+Verify:
+
+```bash
+curl http://localhost:9200
+```
+
+### Start the Application
+
+Configure `src/main/resources/application.properties`, then run:
+
+```bash
+./mvnw spring-boot:run
+```
+
+### Recommended Order
+
+```text
+RAG → Tool Calling → Short-Term Memory → Long-Term Memory → Agentic Workflows
+```
+
+---
+
 ## 1. RAG — Retrieval-Augmented Generation
 
 RAG allows the agent to retrieve relevant information from an external knowledge base before generating a response.
