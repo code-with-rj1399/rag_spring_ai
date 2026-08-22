@@ -66,6 +66,9 @@ The LLM decides whether a tool is required and which tool to invoke.
 
 ## API
 
+
+http://localhost:8080/
+
 ```bash
 curl "http://localhost:8080/qa-agent?query=What is 25 plus 17?"
 ```
